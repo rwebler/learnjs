@@ -23,6 +23,14 @@ learnjs.flashElement = function(elem, content) {
 learnjs.problemView = function(data) {
   var problemNumber = parseInt(data, 10);
   var view = $('.templates .problem-view').clone();
+  if (problemNumber < learnjs.problems.length) {
+    var buttonItem = learnjs.template('skip-btn');
+    buttonItem.find('a').attr('href', '#problem-' + (problemNumber + 1));
+    $('.nav-list').append(buttonItem);
+    view.bind('removingView', function() {
+      buttonItem.remove();
+    });
+  }
   var problemData = learnjs.problems[problemNumber - 1];
   var resultFlash = view.find('.result');
 
@@ -50,13 +58,20 @@ learnjs.problemView = function(data) {
 
 learnjs.showView = function(hash) {
   var routes = {
-    '#problem': learnjs.problemView
+    '#problem': learnjs.problemView,
+    '#': learnjs.landingView,
+    '': learnjs.landingView
   };
   var hashParts = hash.split('-');
   var viewFn = routes[hashParts[0]];
   if (viewFn) {
+    learnjs.triggerEvent('removingView', []);
     $('.view-container').empty().append(viewFn(hashParts[1]));
   }
+}
+
+learnjs.landingView = function() {
+  return learnjs.template('landing-view');
 }
 
 learnjs.applyObject = function(obj, elem) {
@@ -86,4 +101,8 @@ learnjs.buildCorrectFlash = function (problemNum) {
     link.text("You're Finished!");
   }
   return correctFlash;
+}
+
+learnjs.triggerEvent = function(name, args) {
+  $('.view-container>*').trigger(name, args);
 }
