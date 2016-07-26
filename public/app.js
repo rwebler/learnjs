@@ -1,6 +1,8 @@
 'use strict';
 
-var learnjs = {};
+var learnjs = {
+  poolId: 'us-east-1:2e469349-f85e-4a5e-a77d-ef110551a0f8'
+};
 
 learnjs.problems = [
   {
@@ -109,6 +111,15 @@ learnjs.triggerEvent = function(name, args) {
 
 
 
-function googleSignIn() {
-  console.log(arguments);
+function googleSignIn(googleUser) {
+  var id_token = googleUser.getAuthResponse().id_token;
+  AWS.config.update({
+    region: 'us-east-1',
+    credentials: new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: learnjs.poolId,
+      Logins: {
+        'accounts.google.com': id_token
+      }
+    })
+  })
 }
