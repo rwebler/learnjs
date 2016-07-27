@@ -133,14 +133,6 @@ learnjs.awsRefresh = function() {
   return deferred.promise();
 }
 
-learnjs.awsRefresh().then(function(id) {
-  learnjs.identity.resolve({
-    id: id,
-    email: googleUser.getBasicProfile().getEmail(),
-    refresh: refresh
-  });
-});
-
 learnjs.addProfileLink = function(profile) {
   var link = learnjs.template('profile-link');
   link.find('a').text(profile.email);
@@ -156,7 +148,13 @@ function googleSignIn(googleUser) {
       var creds = AWS.config.credentials;
       var newToken = userUpdate.getAuthResponse().id_token;
       creds.params.Logins['accounts.google.com'] = newToken;
-      return learnjs.awsRefresh();
+      return learnjs.awsRefresh().then(function(id) {
+        learnjs.identity.resolve({
+          id: id,
+          email: googleUser.getBasicProfile().getEmail(),
+          refresh: refresh
+        });
+      });
     });
   }
 
